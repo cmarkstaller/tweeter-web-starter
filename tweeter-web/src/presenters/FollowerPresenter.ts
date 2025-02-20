@@ -13,6 +13,7 @@ export class FollowerPresenter extends UserItemPresenter {
   }
 
   public async loadMoreItems(authToken: AuthToken, userAlias: string) {
+    // this.doFailureReportingOperation()
     try {
       const [newItems, hasMore] = await this.followService.loadMoreFollowers(
         authToken,

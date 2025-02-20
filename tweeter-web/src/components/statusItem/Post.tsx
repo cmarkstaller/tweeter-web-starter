@@ -6,7 +6,6 @@ interface Props {
   status: Status;
 }
 
-// Hello
 const Post = (props: Props) => {
   const navigateToUser = useUserNavigation();
 

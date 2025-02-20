@@ -20,8 +20,6 @@ export class UserNavigationPresenter {
     authToken: AuthToken,
     currentUser: User
   ): Promise<void> {
-    // event.preventDefault();
-
     try {
       const alias = this.extractAlias(event.target.toString());
 
