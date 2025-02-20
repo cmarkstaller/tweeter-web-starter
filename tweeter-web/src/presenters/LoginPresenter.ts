@@ -1,5 +1,3 @@
-import { NavigateFunction } from "react-router-dom";
-import { User, AuthToken } from "tweeter-shared";
 import { UserService } from "../model/service/UserService";
 import { AuthView, Presenter, View } from "./Presenter";
 

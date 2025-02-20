@@ -28,7 +28,7 @@ export class Presenter<V extends View> {
     this._view = view;
   }
 
-  protected get view() {
+  protected get view(): V {
     return this._view;
   }
 
@@ -40,7 +40,7 @@ export class Presenter<V extends View> {
       await operation();
     } catch (error) {
       this.view.displayErrorMessage(
-        `Failed to load ${operationDescription} because of exception: ${error}`
+        `Failed to ${operationDescription} because of exception: ${error}`
       );
     }
   }

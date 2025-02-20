@@ -1,7 +1,5 @@
 import { Buffer } from "buffer";
 import { UserService } from "../model/service/UserService";
-import { NavigateFunction } from "react-router-dom";
-import { User, AuthToken } from "tweeter-shared";
 import { AuthView, Presenter, View } from "./Presenter";
 
 export interface RegisterView extends AuthView {
