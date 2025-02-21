@@ -1,5 +1,5 @@
 import { NavigateFunction } from "react-router-dom";
-import { User, AuthToken } from "tweeter-shared";
+import { User, AuthToken, Status } from "tweeter-shared";
 
 export interface View {
   displayErrorMessage: (message: string) => void;
@@ -19,6 +19,10 @@ export interface AuthView extends View {
     authToken: AuthToken,
     remember: boolean
   ) => void;
+}
+
+export interface ItemView<I extends Status | User> extends View {
+  addItems: (newItems: I[]) => void;
 }
 
 export class Presenter<V extends View> {
