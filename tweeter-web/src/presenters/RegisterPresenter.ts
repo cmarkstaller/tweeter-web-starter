@@ -1,6 +1,8 @@
 import { Buffer } from "buffer";
 import { UserService } from "../model/service/UserService";
-import { AuthView, Presenter, View } from "./Presenter";
+import { AuthView } from "./Presenter";
+import { AuthPresenter } from "./AuthPresenter";
+import { User, AuthToken } from "tweeter-shared";
 
 export interface RegisterView extends AuthView {
   setImageUrl: React.Dispatch<React.SetStateAction<string>>;
@@ -8,7 +10,38 @@ export interface RegisterView extends AuthView {
   setImageFileExtension: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export class RegisterPresenter extends Presenter<RegisterView> {
+export class RegisterPresenter extends AuthPresenter<RegisterView> {
+  protected async serviceCall(
+    firstName: string,
+    lastName: string,
+    alias: string,
+    password: string,
+    imageBytes: Uint8Array,
+    imageFileExtension: string
+  ): Promise<[User, AuthToken]> {
+    return this._userService.register(
+      firstName,
+      lastName,
+      alias,
+      password,
+      imageBytes,
+      imageFileExtension
+    );
+  }
+
+  //     const [user, authToken] = await this._userService.register(
+  //       firstName,
+  //       lastName,
+  //       alias,
+  //       password,
+  //       imageBytes,
+  //       imageFileExtension
+  //     );
+
+  protected navigateCall(): void {
+    this._view.navigate("/");
+  }
+
   private _userService: UserService;
 
   public constructor(view: RegisterView) {
@@ -61,26 +94,40 @@ export class RegisterPresenter extends Presenter<RegisterView> {
     imageFileExtension: string,
     rememberMe: boolean
   ) {
-    try {
-      this._view.setIsLoading(true);
+    this.doAuth(
+      rememberMe,
+      () =>
+        this.serviceCall(
+          firstName,
+          lastName,
+          alias,
+          password,
+          imageBytes,
+          imageFileExtension
+        ),
+      () => this.navigateCall(),
+      "register"
+    );
+    //   try {
+    //     this._view.setIsLoading(true);
 
-      const [user, authToken] = await this._userService.register(
-        firstName,
-        lastName,
-        alias,
-        password,
-        imageBytes,
-        imageFileExtension
-      );
+    //     const [user, authToken] = await this._userService.register(
+    //       firstName,
+    //       lastName,
+    //       alias,
+    //       password,
+    //       imageBytes,
+    //       imageFileExtension
+    //     );
 
-      this._view.updateUserInfo(user, user, authToken, rememberMe);
-      this._view.navigate("/");
-    } catch (error) {
-      this._view.displayErrorMessage(
-        `Failed to register user because of exception: ${error}`
-      );
-    } finally {
-      this._view.setIsLoading(false);
-    }
+    //     this._view.updateUserInfo(user, user, authToken, rememberMe);
+    //     this._view.navigate("/");
+    //   } catch (error) {
+    //     this._view.displayErrorMessage(
+    //       `Failed to register user because of exception: ${error}`
+    //     );
+    //   } finally {
+    //     this._view.setIsLoading(false);
+    //   }
   }
 }

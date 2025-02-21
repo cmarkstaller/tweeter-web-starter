@@ -8,11 +8,7 @@ import {
   UserInfoView,
 } from "../../presenters/UserInfoPresenter";
 
-interface Props {
-  presenterGenerator: (view: UserInfoView) => UserInfoPresenter;
-}
-
-const UserInfo = (props: Props) => {
+const UserInfo = () => {
   const [isFollower, setIsFollower] = useState(false);
   const [followeeCount, setFolloweeCount] = useState(-1);
   const [followerCount, setFollowerCount] = useState(-1);
@@ -44,7 +40,7 @@ const UserInfo = (props: Props) => {
     setIsLoading: setIsLoading,
   };
 
-  const [presenter] = useState(props.presenterGenerator(listener));
+  const [presenter] = useState(new UserInfoPresenter(listener));
 
   const setIsFollowerStatus = () =>
     presenter.setIsFollowerStatus(authToken!, currentUser!, displayedUser!);

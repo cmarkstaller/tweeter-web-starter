@@ -1,9 +1,23 @@
+import { User, AuthToken } from "tweeter-shared";
 import { UserService } from "../model/service/UserService";
-import { AuthView, Presenter, View } from "./Presenter";
+import { AuthPresenter } from "./AuthPresenter";
+import { AuthView, Presenter } from "./Presenter";
 
-// export interface LoginView extends AuthView {}
+export class LoginPresenter extends AuthPresenter<AuthView> {
+  protected serviceCall(
+    alias: string,
+    password: string
+  ): Promise<[User, AuthToken]> {
+    return this._userService.login(alias, password);
+  }
+  protected navigateCall(originalUrl: string): void {
+    if (!!originalUrl) {
+      this._view.navigate(originalUrl);
+    } else {
+      this._view.navigate("/");
+    }
+  }
 
-export class LoginPresenter extends Presenter<AuthView> {
   private _userService: UserService;
 
   public constructor(view: AuthView) {
@@ -17,24 +31,47 @@ export class LoginPresenter extends Presenter<AuthView> {
     rememberMe: boolean,
     originalUrl: string
   ) {
-    try {
-      this._view.setIsLoading(true);
+    await this.doAuth(
+      rememberMe,
+      () => this.serviceCall(alias, password),
+      () => this.navigateCall,
+      "login"
+    );
 
-      const [user, authToken] = await this._userService.login(alias, password);
+    // await this.doAuth(
+    //   rememberMe,
+    //   () => {
+    //     return this._userService.login(alias, password);
+    //   },
+    //   () => {
+    //     if (!!originalUrl) {
+    //       this._view.navigate(originalUrl);
+    //     } else {
+    //       this._view.navigate("/");
+    //     }
+    //   },
+    //   "log"
+    // );
 
-      this._view.updateUserInfo(user, user, authToken, rememberMe);
+    //   try {
+    //     this._view.setIsLoading(true);
 
-      if (!!originalUrl) {
-        this._view.navigate(originalUrl);
-      } else {
-        this._view.navigate("/");
-      }
-    } catch (error) {
-      this._view.displayErrorMessage(
-        `Failed to log user in because of exception: ${error}`
-      );
-    } finally {
-      this._view.setIsLoading(false);
-    }
+    //     const [user, authToken] = await this._userService.login(alias, password);
+
+    //     this._view.updateUserInfo(user, user, authToken, rememberMe);
+
+    //     if (!!originalUrl) {
+    //       this._view.navigate(originalUrl);
+    //     } else {
+    //       this._view.navigate("/");
+    //     }
+    //   } catch (error) {
+    //     this._view.displayErrorMessage(
+    //       `Failed to log user in because of exception: ${error}`
+    //     );
+    //   } finally {
+    //     this._view.setIsLoading(false);
+    //   }
+    // }
   }
 }
