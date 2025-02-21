@@ -22,7 +22,6 @@ export interface AuthView extends View {
 }
 
 export class Presenter<V extends View> {
-  //   export class Presenter<V extends View> {
   protected _view: V;
 
   public constructor(view: V) {
