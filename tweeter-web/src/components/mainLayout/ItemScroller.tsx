@@ -1,15 +1,9 @@
-import { AuthToken, Status, User } from "tweeter-shared";
+import { Status, User } from "tweeter-shared";
 import { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import useToastListener from "../toaster/ToastListenerHook";
-import StatusItem from "../statusItem/StatusItem";
 import useUserInfo from "../userInfo/UserHook";
-import {
-  StatusItemPresenter,
-  StatusItemView,
-} from "../../presenters/StatusItemPresenter";
-import { View, Presenter, ItemView } from "../../presenters/Presenter";
-import StatusItemScroller from "./StatusItemScroller";
+import { ItemView } from "../../presenters/Presenter";
 import { PagedItemPresenter } from "../../presenters/PagedItemPresenter";
 
 interface Props<I extends Status | User, S> {

@@ -42,8 +42,8 @@ const Login = (props: Props) => {
     }
   };
 
-  const doLogin = () =>
-    presenter.doLogin(alias, password, rememberMe, props.originalUrl!);
+  const doLogin = () => presenter.doLogin(alias, password, rememberMe);
+  // presenter.doLogin(alias, password, rememberMe, props.originalUrl!);
 
   const inputFieldGenerator = () => {
     return (

@@ -16,6 +16,10 @@ export class PostStatusPresenter extends Presenter<PostStatusView> {
     this._statusService = new StatusService();
   }
 
+  public get statusService() {
+    return this._statusService;
+  }
+
   public get isLoading() {
     return this._isLoading;
   }
@@ -35,13 +39,19 @@ export class PostStatusPresenter extends Presenter<PostStatusView> {
 
       const status = new Status(post, currentUser!, Date.now());
 
-      await this._statusService.postStatus(authToken!, status);
+      //TODO: Remove me
+      console.log(authToken);
+      console.log(status);
+
+      await this.statusService.postStatus(authToken!, status);
 
       this._view.setPost("");
       this._view.displayInfoMessage("Status posted!", 2000);
     } catch (error) {
       this._view.displayErrorMessage(
-        `Failed to post the status because of exception: ${error}`
+        `Failed to post the status because of exception: ${
+          (error as Error).message
+        }`
       );
     } finally {
       this._view.clearLastInfoMessage();
