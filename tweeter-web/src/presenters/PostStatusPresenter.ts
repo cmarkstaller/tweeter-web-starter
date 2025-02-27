@@ -40,8 +40,8 @@ export class PostStatusPresenter extends Presenter<PostStatusView> {
       const status = new Status(post, currentUser!, Date.now());
 
       //TODO: Remove me
-      console.log(authToken);
-      console.log(status);
+      // console.log(authToken);
+      // console.log(status);
 
       await this.statusService.postStatus(authToken!, status);
 

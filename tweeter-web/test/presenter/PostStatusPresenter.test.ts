@@ -53,8 +53,8 @@ describe("PostStatusPresenter", () => {
 
   it("The presenter calls postStatus on the post status service with the correct status string and auth token.", async () => {
     await postStatusPresenter.submitPost(user, authToken, "Here is my post");
-    console.log(authToken);
-    console.log(status);
+    // console.log(authToken);
+    // console.log(status);
 
     verify(
       mockStatusService.postStatus(
