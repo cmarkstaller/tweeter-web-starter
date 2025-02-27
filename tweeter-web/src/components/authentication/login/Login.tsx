@@ -17,7 +17,7 @@ interface Props {
 const Login = (props: Props) => {
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  // const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -43,7 +43,7 @@ const Login = (props: Props) => {
     }
   };
 
-  const doLogin = () => presenter.doLogin(alias, password, rememberMe);
+  const doLogin = () => presenter.doLogin(alias, password, props.originalUrl!);
   // presenter.doLogin(alias, password, rememberMe, props.originalUrl!);
 
   const inputFieldGenerator = () => {
@@ -71,7 +71,7 @@ const Login = (props: Props) => {
       oAuthHeading="Sign in with:"
       inputFieldGenerator={inputFieldGenerator}
       switchAuthenticationMethodGenerator={switchAuthenticationMethodGenerator}
-      setRememberMe={setRememberMe}
+      setRememberMe={(checked) => presenter.setRememberMe(checked)}
       submitButtonDisabled={checkSubmitButtonStatus}
       isLoading={isLoading}
       submit={doLogin}

@@ -1,5 +1,5 @@
 import { MemoryRouter } from "react-router-dom";
-import Login from "../../../../src/components/authentication/login/Login";
+import PostStatus from "../../../../src/components/postStatus/PostStatus";
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import userEvent from "@testing-library/user-event";
@@ -7,12 +7,12 @@ import "@testing-library/jest-dom";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";
-import { LoginPresenter } from "../../../../src/presenters/LoginPresenter";
+import { PostStatusPresenter } from "../../../../src/presenters/PostStatusPresenter";
 import { anything, instance, mock, verify } from "@typestrong/ts-mockito";
 library.add(fab);
 
-describe("Login Component", () => {
-  it("start with the sign-in button disabled", () => {
+describe("Post Status Component", () => {
+  it("When first rendered the Post Status and Clear buttons are both disabled.", () => {
     const { signInButton } = renderLoginAndGetElements("/");
     expect(signInButton).toBeDisabled();
   });
@@ -66,7 +66,7 @@ describe("Login Component", () => {
   });
 });
 
-const renderLogin = (originalUrl: string, presenter?: LoginPresenter) => {
+const renderPostStatus = (originalUrl: string, presenter?: LoginPresenter) => {
   return render(
     <MemoryRouter>
       {!!presenter ? (

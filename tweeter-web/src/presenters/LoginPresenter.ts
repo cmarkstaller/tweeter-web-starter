@@ -21,11 +21,12 @@ export class LoginPresenter extends AuthPresenter<AuthView> {
     super(view);
   }
 
-  public async doLogin(alias: string, password: string, rememberMe: boolean) {
+  public async doLogin(alias: string, password: string, originalUrl: string) {
+    console.log("Doing do login");
     await this.doAuth(
-      rememberMe,
+      this._rememberMe,
       () => this.serviceCall(alias, password),
-      () => this.navigateCall,
+      () => this.navigateCall(originalUrl),
       "login"
     );
   }
