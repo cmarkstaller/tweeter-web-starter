@@ -120,14 +120,16 @@ jest.mock("../../../../src/components/userInfo/UserHook", () => ({
   default: jest.fn(),
 }));
 
-const mockUser = mock(User);
-//let mockUserInstance: User;
-const mockAuthToken = mock(AuthToken);
-const mockAuthTokenInstance = instance(mockAuthToken);
-const mockUserInstance = instance(mockUser);
-
 describe("Post Status Component", () => {
+  const mockUser = mock<User>();
+  let mockUserInstance: User;
+  const mockAuthToken = mock<AuthToken>();
+  let mockAuthTokenInstance: AuthToken;
+
   beforeAll(() => {
+    mockUserInstance = instance(mockUser);
+    mockAuthTokenInstance = instance(mockAuthToken);
+
     (useUserInfo as jest.Mock).mockReturnValue({
       currentUser: mockUserInstance,
       authToken: mockAuthTokenInstance,
