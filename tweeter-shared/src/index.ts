@@ -14,8 +14,10 @@ export type { UserDto } from "./model/dto/UserDto";
 
 // Requests
 export type { PagedUserItemRequest } from "./model/net/request/PagedUserItemRequest";
+export type { TweeterRequest } from "./model/net/request/TweeterRequest";
 
 // Responses
+export type { TweeterResponse } from "./model/net/response/TweeterResponse";
 export type { PagedUserItemResponse } from "./model/net/response/PagedUserItemResponse";
 
 // Other

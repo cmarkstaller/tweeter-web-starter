@@ -18,10 +18,7 @@ export class FollowService {
     lastItem: UserDto | null
   ): Promise<[UserDto[], boolean]> {
     // TODO: Replace with the result of calling server
-    const temp = this.getFakeData(lastItem, pageSize, userAlias);
-    // console.log(temp);
-    return temp;
-    // return this.getFakeData(lastItem, pageSize, userAlias);
+    return this.getFakeData(lastItem, pageSize, userAlias);
   }
 
   private async getFakeData(
@@ -34,9 +31,7 @@ export class FollowService {
       pageSize,
       userAlias
     );
-    console.log(items);
     const dtos = items.map((user) => user.dto);
-    console.log(dtos);
     return [dtos, hasMore];
   }
 }
