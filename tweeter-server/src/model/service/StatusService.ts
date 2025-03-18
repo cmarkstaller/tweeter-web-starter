@@ -1,4 +1,10 @@
-import { AuthToken, FakeData, Status, StatusDto } from "tweeter-shared";
+import {
+  AuthToken,
+  FakeData,
+  Status,
+  StatusDto,
+  TweeterResponse,
+} from "tweeter-shared";
 
 export class StatusService {
   public async loadMoreFeedItems(
@@ -21,10 +27,14 @@ export class StatusService {
     return this.getFakeData(lastItem, pageSize);
   }
 
-  public async postStatus(token: string, newStatus: StatusDto): Promise<void> {
+  public async postStatus(
+    token: string,
+    newStatus: StatusDto
+  ): Promise<boolean> {
     // Pause so we can see the logging out message. Remove when connected to the server
     await new Promise((f) => setTimeout(f, 2000));
     // TODO: Call the server to post the status
+    return true;
   }
 
   private async getFakeData(

@@ -1,8 +1,9 @@
 import {
+  IsFollowerRequest,
   PagedItemRequest,
   PagedItemResponse,
-  PagedUserItemRequest,
-  PagedUserItemResponse,
+  PostStatusRequest,
+  TweeterResponse,
   User,
   UserDto,
 } from "tweeter-shared";
@@ -66,5 +67,24 @@ export class ServerFacade {
       console.error(response);
       throw new Error(response.message ?? "Unknown error");
     }
+  }
+
+  public async postStatus(request: PostStatusRequest): Promise<void> {
+    const response = await this.clientCommunicator.doPost<
+      PostStatusRequest,
+      TweeterResponse
+    >(request, "/postStatus/list");
+    console.log(response.message);
+  }
+
+  public async getIsFollowerStatus(
+    request: IsFollowerRequest
+  ): Promise<boolean> {
+    const response = await this.clientCommunicator.doPost<
+      IsFollowerRequest,
+      TweeterResponse
+    >(request, "/isFollowerStatus/list");
+
+    return response.success;
   }
 }
