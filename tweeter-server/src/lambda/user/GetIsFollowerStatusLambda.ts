@@ -1,10 +1,4 @@
-import type {
-  IsFollowerRequest,
-  PagedItemRequest,
-  PagedItemResponse,
-  StatusDto,
-  TweeterResponse,
-} from "tweeter-shared";
+import type { IsFollowerRequest, TweeterResponse } from "tweeter-shared";
 import { UserService } from "../../model/service/UserService";
 
 export const handler = async (

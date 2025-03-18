@@ -18,10 +18,12 @@ export type { TweeterRequest } from "./model/net/request/TweeterRequest";
 export type { PagedItemRequest } from "./model/net/request/PagedItemRequest";
 export type { PostStatusRequest } from "./model/net/request/PostStatusReqeust";
 export type { IsFollowerRequest } from "./model/net/request/IsFollowerRequest";
+export type { UserRequest } from "./model/net/request/UserRequest";
 
 // Responses
 export type { TweeterResponse } from "./model/net/response/TweeterResponse";
 export type { PagedItemResponse } from "./model/net/response/PagedItemResponse";
+export type { NumFollowResponse } from "./model/net/response/NumFollowResponse";
 
 // Other
 export { FakeData } from "./util/FakeData";

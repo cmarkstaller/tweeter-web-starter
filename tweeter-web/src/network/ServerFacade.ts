@@ -1,11 +1,15 @@
 import {
   IsFollowerRequest,
+  NumFollowResponse,
   PagedItemRequest,
   PagedItemResponse,
   PostStatusRequest,
+  Status,
+  StatusDto,
   TweeterResponse,
   User,
   UserDto,
+  UserRequest,
 } from "tweeter-shared";
 import { ClientCommunicator } from "./ClientCommunicator";
 
@@ -69,6 +73,33 @@ export class ServerFacade {
     }
   }
 
+  public async loadMoreFeedItems(
+    request: PagedItemRequest<StatusDto>
+  ): Promise<[Status[], boolean]> {
+    const response = await this.clientCommunicator.doPost<
+      PagedItemRequest<StatusDto>,
+      PagedItemResponse<StatusDto>
+    >(request, "/feedItems/list");
+
+    // Convert the UserDto array returned by ClientCommunicator to a User array
+    const items: Status[] | null =
+      response.success && response.items
+        ? response.items.map((dto) => Status.fromDto(dto) as Status)
+        : null;
+
+    // Handle errors
+    if (response.success) {
+      if (items == null) {
+        throw new Error(`No feed items found`);
+      } else {
+        return [items, response.hasMore];
+      }
+    } else {
+      console.error(response);
+      throw new Error(response.message ?? "Unknown error");
+    }
+  }
+
   public async postStatus(request: PostStatusRequest): Promise<void> {
     const response = await this.clientCommunicator.doPost<
       PostStatusRequest,
@@ -86,5 +117,23 @@ export class ServerFacade {
     >(request, "/isFollowerStatus/list");
 
     return response.success;
+  }
+
+  public async getFolloweeCount(request: UserRequest): Promise<number> {
+    const response = await this.clientCommunicator.doPost<
+      UserRequest,
+      NumFollowResponse
+    >(request, "/getFolloweeCount/list");
+    console.log("Followee Count: ", response);
+    return response.numFollow;
+  }
+
+  public async getFollowerCount(request: UserRequest): Promise<number> {
+    const response = await this.clientCommunicator.doPost<
+      UserRequest,
+      NumFollowResponse
+    >(request, "/getFollowerCount/list");
+    console.log("Follower Count: ", response);
+    return response.numFollow;
   }
 }
