@@ -1,4 +1,6 @@
 import {
+  PagedItemRequest,
+  PagedItemResponse,
   PagedUserItemRequest,
   PagedUserItemResponse,
   User,
@@ -13,11 +15,11 @@ export class ServerFacade {
   private clientCommunicator = new ClientCommunicator(this.SERVER_URL);
 
   public async getMoreFollowees(
-    request: PagedUserItemRequest
+    request: PagedItemRequest<UserDto>
   ): Promise<[User[], boolean]> {
     const response = await this.clientCommunicator.doPost<
-      PagedUserItemRequest,
-      PagedUserItemResponse
+      PagedItemRequest<UserDto>,
+      PagedItemResponse<UserDto>
     >(request, "/followee/list");
 
     // Convert the UserDto array returned by ClientCommunicator to a User array
@@ -40,11 +42,11 @@ export class ServerFacade {
   }
 
   public async getMoreFollowers(
-    request: PagedUserItemRequest
+    request: PagedItemRequest<UserDto>
   ): Promise<[User[], boolean]> {
     const response = await this.clientCommunicator.doPost<
-      PagedUserItemRequest,
-      PagedUserItemResponse
+      PagedItemRequest<UserDto>,
+      PagedItemResponse<UserDto>
     >(request, "/follower/list");
 
     // Convert the UserDto array returned by ClientCommunicator to a User array
