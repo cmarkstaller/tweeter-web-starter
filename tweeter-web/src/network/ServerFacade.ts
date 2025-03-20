@@ -1,11 +1,19 @@
 import {
+  AuthResponse,
+  AuthToken,
+  FollowResponse,
+  GetUserRequest,
+  GetUserResponse,
   IsFollowerRequest,
+  LoginRequest,
   NumFollowResponse,
   PagedItemRequest,
   PagedItemResponse,
   PostStatusRequest,
+  RegisterRequest,
   Status,
   StatusDto,
+  TweeterRequest,
   TweeterResponse,
   User,
   UserDto,
@@ -100,6 +108,33 @@ export class ServerFacade {
     }
   }
 
+  public async loadMoreStoryItems(
+    request: PagedItemRequest<StatusDto>
+  ): Promise<[Status[], boolean]> {
+    const response = await this.clientCommunicator.doPost<
+      PagedItemRequest<StatusDto>,
+      PagedItemResponse<StatusDto>
+    >(request, "/storyItems/list");
+
+    // Convert the UserDto array returned by ClientCommunicator to a User array
+    const items: Status[] | null =
+      response.success && response.items
+        ? response.items.map((dto) => Status.fromDto(dto) as Status)
+        : null;
+
+    // Handle errors
+    if (response.success) {
+      if (items == null) {
+        throw new Error(`No feed items found`);
+      } else {
+        return [items, response.hasMore];
+      }
+    } else {
+      console.error(response);
+      throw new Error(response.message ?? "Unknown error");
+    }
+  }
+
   public async postStatus(request: PostStatusRequest): Promise<void> {
     const response = await this.clientCommunicator.doPost<
       PostStatusRequest,
@@ -124,7 +159,6 @@ export class ServerFacade {
       UserRequest,
       NumFollowResponse
     >(request, "/getFolloweeCount/list");
-    console.log("Followee Count: ", response);
     return response.numFollow;
   }
 
@@ -133,7 +167,81 @@ export class ServerFacade {
       UserRequest,
       NumFollowResponse
     >(request, "/getFollowerCount/list");
-    console.log("Follower Count: ", response);
     return response.numFollow;
+  }
+
+  public async follow(request: UserRequest): Promise<[number, number]> {
+    const response = await this.clientCommunicator.doPost<
+      UserRequest,
+      FollowResponse
+    >(request, "/follow/list");
+    return [response.numFollower, response.numFollowee];
+  }
+
+  public async unfollow(request: UserRequest): Promise<[number, number]> {
+    const response = await this.clientCommunicator.doPost<
+      UserRequest,
+      FollowResponse
+    >(request, "/unfollow/list");
+    return [response.numFollower, response.numFollowee];
+  }
+
+  public async login(request: LoginRequest): Promise<[User, AuthToken]> {
+    const response = await this.clientCommunicator.doPost<
+      LoginRequest,
+      AuthResponse
+    >(request, "/login/list");
+
+    // return [User.fromDto(response.user)!, response.authToken];
+
+    if (response.success) {
+      if (response.user.alias == null) {
+        throw new Error(`Error logging in user`);
+      } else {
+        return [User.fromDto(response.user)!, response.authToken];
+      }
+    } else {
+      console.error(response);
+      throw new Error(response.message ?? "Unknown error");
+    }
+  }
+
+  public async register(request: RegisterRequest): Promise<[User, AuthToken]> {
+    const response = await this.clientCommunicator.doPost<
+      RegisterRequest,
+      AuthResponse
+    >(request, "/register/list");
+
+    // return [User.fromDto(response.user)!, response.authToken];
+    if (response.success) {
+      if (
+        response.user.firstName == null ||
+        response.user.lastName == null ||
+        response.user.alias == null ||
+        response.user.imageUrl == null
+      ) {
+        throw new Error(`Error registering user`);
+      } else {
+        return [User.fromDto(response.user)!, response.authToken];
+      }
+    } else {
+      console.error(response);
+      throw new Error(response.message ?? "Unknown error");
+    }
+  }
+
+  public async logout(request: TweeterRequest): Promise<void> {
+    await this.clientCommunicator.doPost<TweeterRequest, TweeterResponse>(
+      request,
+      "/logout/list"
+    );
+  }
+
+  public async getUser(request: GetUserRequest): Promise<User | null> {
+    const response = await this.clientCommunicator.doPost<
+      GetUserRequest,
+      GetUserResponse
+    >(request, "/getUser/list");
+    return User.fromDto(response.user);
   }
 }
