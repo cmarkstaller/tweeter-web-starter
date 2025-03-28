@@ -156,12 +156,6 @@ export class ServerFacade {
     >(request, "/isFollowerStatus/list");
 
     return response.success;
-    // if (!response.success) {
-    //   console.error(response);
-    //   throw new Error(response.message ?? "Unknown error");
-    // } else {
-    //   return response.success;
-    // }
   }
 
   public async getFolloweeCount(request: UserRequest): Promise<number> {
@@ -226,8 +220,6 @@ export class ServerFacade {
       AuthResponse
     >(request, "/login/list");
 
-    // return [User.fromDto(response.user)!, response.authToken];
-
     if (response.success) {
       if (response.user.alias == null) {
         throw new Error(`Error logging in user`);
@@ -246,7 +238,6 @@ export class ServerFacade {
       AuthResponse
     >(request, "/register/list");
 
-    // return [User.fromDto(response.user)!, response.authToken];
     if (response.success) {
       if (
         response.user.firstName == null ||

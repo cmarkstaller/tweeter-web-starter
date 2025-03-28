@@ -1,7 +1,20 @@
 import { Buffer } from "buffer";
 import { AuthToken, User, FakeData, UserDto } from "tweeter-shared";
+import { AuthTokenDao } from "../../dao/dao_interfaces/AuthTokenDao";
+import { UserDao } from "../../dao/dao_interfaces/UserDao";
+import { Factory } from "../../factory/Factory";
+import { UserEntity } from "../../dao/entities/UserEntity";
+import { AuthTokenEntity } from "../../dao/entities/AuthTokenEntity";
 
 export class UserService {
+  private userDao: UserDao;
+  private authTokenDao: AuthTokenDao;
+
+  public constructor(factory: Factory) {
+    this.userDao = factory.getUserDao();
+    this.authTokenDao = factory.getAuthTokenDao();
+  }
+
   public async getIsFollowerStatus(
     token: string,
     user: UserDto,
@@ -69,21 +82,48 @@ export class UserService {
     lastName: string,
     alias: string,
     password: string,
-    userImageBytes: Uint8Array,
+    userImageBytes: string,
     imageFileExtension: string
   ): Promise<[UserDto, AuthToken]> {
     // Not neded now, but will be needed when you make the request to the server in milestone 3
-    const imageStringBase64: string =
-      Buffer.from(userImageBytes).toString("base64");
 
     // TODO: Replace with the result of calling the server
-    const user = FakeData.instance.firstUser;
-
-    if (user === null) {
+    // const user = FakeData.instance.firstUser;
+    if ((await this.userDao.getUser(alias)) !== undefined) {
       throw new Error("Invalid registration");
     }
 
-    return [user.dto, FakeData.instance.authToken];
+    // if (user === null) {
+    //   throw new Error("Invalid registration");
+    // }
+
+    const userEntity: UserEntity = {
+      alias,
+      password,
+      firstName,
+      lastName,
+      userImageBytes,
+      imageFileExtension,
+    };
+    this.userDao.putUser(userEntity);
+
+    const userDto: UserDto = {
+      firstName: firstName,
+      lastName: lastName,
+      alias: alias,
+      imageUrl: imageFileExtension,
+    };
+
+    const authToken: AuthToken = AuthToken.Generate();
+    const authTokenEntity: AuthTokenEntity = {
+      alias: alias,
+      token: authToken.token,
+      timeStamp: authToken.timestamp,
+    };
+
+    this.authTokenDao.putAuthToken(authTokenEntity);
+
+    return [userDto, authToken];
   }
 
   public async logout(token: string): Promise<void> {
