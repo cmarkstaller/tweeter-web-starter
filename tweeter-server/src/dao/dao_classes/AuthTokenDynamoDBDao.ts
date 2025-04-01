@@ -6,7 +6,6 @@ import {
   PutCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { UserEntity } from "../entities/UserEntity";
 import { AuthTokenDao } from "../dao_interfaces/AuthTokenDao";
 import { AuthTokenEntity } from "../entities/AuthTokenEntity";
 
@@ -15,6 +14,7 @@ export class AuthTokenDynamoDBDao implements AuthTokenDao {
   readonly aliasAttr = "alias";
   readonly tokenAttr = "token";
   readonly timeStampAttr = "time_stamp";
+  readonly TIMEOUT = 60000;
 
   private readonly client = DynamoDBDocumentClient.from(new DynamoDBClient());
 
@@ -48,12 +48,12 @@ export class AuthTokenDynamoDBDao implements AuthTokenDao {
   }
 
   public async updateAuthToken(
-    authToken: AuthTokenEntity,
+    token: string,
     timeStamp: number
   ): Promise<void> {
     const params = {
       TableName: this.tableName,
-      Key: this.generateTokenItem(authToken.token),
+      Key: this.generateTokenItem(token),
       ExpressionAttributeValues: {
         ":timeStamp": timeStamp,
       },
@@ -68,6 +68,22 @@ export class AuthTokenDynamoDBDao implements AuthTokenDao {
       Key: this.generateTokenItem(token),
     };
     await this.client.send(new DeleteCommand(params));
+  }
+
+  public async checkAuthToken(token: string): Promise<boolean> {
+    const authTokenEntity = await this.getAuthToken(token);
+
+    if (!authTokenEntity) {
+      throw new Error("AuthToken Error");
+    }
+    const time = authTokenEntity.timeStamp;
+    if (Date.now() - time > this.TIMEOUT) {
+      await this.deleteAuthToken(token);
+      return false;
+    } else {
+      this.updateAuthToken(token, Date.now());
+      return true;
+    }
   }
 
   private generateTokenItem(token: string) {

@@ -159,7 +159,11 @@ export class UserService {
 
   public async logout(token: string): Promise<void> {
     // Pause so we can see the logging out message. Delete when the call to the server is implemented.
-    await new Promise((res) => setTimeout(res, 1000));
+    const authTokenEntity = this.authTokenDao.getAuthToken(token);
+    if (!authTokenEntity) {
+      throw new Error("User not logged in to log out");
+    }
+    this.authTokenDao.deleteAuthToken(token);
   }
 
   public async getUser(token: string, alias: string): Promise<UserDto | null> {

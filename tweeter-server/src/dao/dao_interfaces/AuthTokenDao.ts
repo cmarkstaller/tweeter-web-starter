@@ -5,7 +5,7 @@ export interface AuthTokenDao {
 
   getAuthToken(token: string): Promise<AuthTokenEntity | undefined>;
 
-  updateAuthToken(authToken: AuthTokenEntity, timeStamp: number): Promise<void>;
+  updateAuthToken(token: string, timeStamp: number): Promise<void>;
 
   deleteAuthToken(token: string): Promise<void>;
 }
