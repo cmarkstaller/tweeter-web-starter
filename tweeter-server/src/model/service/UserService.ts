@@ -1,4 +1,4 @@
-import { Buffer } from "buffer";
+import bcrypt from "bcryptjs";
 import { AuthToken, User, FakeData, UserDto } from "tweeter-shared";
 import { AuthTokenDao } from "../../dao/dao_interfaces/AuthTokenDao";
 import { UserDao } from "../../dao/dao_interfaces/UserDao";
@@ -80,7 +80,8 @@ export class UserService {
     }
     const userPassword = userEntity.password;
 
-    if (userPassword !== password) {
+    const isValidPassword = await bcrypt.compare(password, userPassword);
+    if (!isValidPassword) {
       throw new Error("Error with user name or password");
     }
 
@@ -122,13 +123,12 @@ export class UserService {
       throw new Error("User Alias already taken. Try a different one.");
     }
 
-    // if (user === null) {
-    //   throw new Error("Invalid registration");
-    // }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     const userEntity: UserEntity = {
       alias,
-      password,
+      password: hashedPassword,
       firstName,
       lastName,
     };
