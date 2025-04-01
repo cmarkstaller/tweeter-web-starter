@@ -27,8 +27,6 @@ export class UserDynamoDBDao implements UserDao {
         [this.passwordAttr]: user.password,
         [this.firstNameAttr]: user.firstName,
         [this.lastNameAttr]: user.lastName,
-        [this.userImageBytesAttr]: user.userImageBytes,
-        [this.imageFileExtAttr]: user.imageFileExtension,
       },
     };
     await this.client.send(new PutCommand(params));
@@ -47,8 +45,6 @@ export class UserDynamoDBDao implements UserDao {
           password: output.Item[this.passwordAttr],
           firstName: output.Item[this.firstNameAttr],
           lastName: output.Item[this.lastNameAttr],
-          userImageBytes: output.Item[this.userImageBytesAttr],
-          imageFileExtension: output.Item[this.imageFileExtAttr],
         };
   }
 

@@ -4,15 +4,25 @@ import { DynamoDBFactory } from "../../factory/DynamoDBFactory";
 
 export const handler = async (request: LoginRequest): Promise<AuthResponse> => {
   const userService = new UserService(new DynamoDBFactory());
-  const [userDto, authToken] = await userService.login(
-    request.alias,
-    request.password
-  );
+  try {
+    const [userDto, authToken] = await userService.login(
+      request.alias,
+      request.password
+    );
 
-  return {
-    success: true,
-    message: null,
-    user: userDto,
-    authToken: authToken,
-  };
+    return {
+      success: true,
+      message: null,
+      user: userDto,
+      authToken: authToken,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred",
+      user: null,
+      authToken: null,
+    };
+  }
 };

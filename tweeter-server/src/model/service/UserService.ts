@@ -5,14 +5,17 @@ import { UserDao } from "../../dao/dao_interfaces/UserDao";
 import { Factory } from "../../factory/Factory";
 import { UserEntity } from "../../dao/entities/UserEntity";
 import { AuthTokenEntity } from "../../dao/entities/AuthTokenEntity";
+import { ImageDao } from "../../dao/dao_interfaces/ImageDao";
 
 export class UserService {
   private userDao: UserDao;
   private authTokenDao: AuthTokenDao;
+  private imageDao: ImageDao;
 
   public constructor(factory: Factory) {
     this.userDao = factory.getUserDao();
     this.authTokenDao = factory.getAuthTokenDao();
+    this.imageDao = factory.getImageDao();
   }
 
   public async getIsFollowerStatus(
@@ -68,13 +71,38 @@ export class UserService {
     password: string
   ): Promise<[UserDto, AuthToken]> {
     // TODO: Replace with the result of calling the server
-    const user = FakeData.instance.firstUser;
+    const userEntity: UserEntity | undefined = await this.userDao.getUser(
+      alias
+    );
 
-    if (user === null) {
-      throw new Error("Invalid alias or password");
+    if (!userEntity) {
+      throw new Error("Did you mean to register?");
+    }
+    const userPassword = userEntity.password;
+
+    if (userPassword !== password) {
+      throw new Error("Error with user name or password");
     }
 
-    return [user.dto, FakeData.instance.authToken];
+    const fileName: string = `${alias}_Image`;
+    const imageUrl = await this.imageDao.getImage(fileName);
+
+    const userDto: UserDto = {
+      firstName: userEntity.firstName,
+      lastName: userEntity.lastName,
+      alias: alias,
+      imageUrl: imageUrl,
+    };
+
+    const authToken: AuthToken = AuthToken.Generate();
+    const authTokenEntity: AuthTokenEntity = {
+      alias: alias,
+      token: authToken.token,
+      timeStamp: authToken.timestamp,
+    };
+    await this.authTokenDao.putAuthToken(authTokenEntity);
+
+    return [userDto, authToken];
   }
 
   public async register(
@@ -89,8 +117,9 @@ export class UserService {
 
     // TODO: Replace with the result of calling the server
     // const user = FakeData.instance.firstUser;
+
     if ((await this.userDao.getUser(alias)) !== undefined) {
-      throw new Error("Invalid registration");
+      throw new Error("User Alias already taken. Try a different one.");
     }
 
     // if (user === null) {
@@ -102,16 +131,18 @@ export class UserService {
       password,
       firstName,
       lastName,
-      userImageBytes,
-      imageFileExtension,
     };
-    this.userDao.putUser(userEntity);
+
+    await this.userDao.putUser(userEntity);
+
+    const fileName: string = `${alias}_Image`;
+    const imageUrl = await this.imageDao.putImage(fileName, userImageBytes);
 
     const userDto: UserDto = {
       firstName: firstName,
       lastName: lastName,
       alias: alias,
-      imageUrl: imageFileExtension,
+      imageUrl: imageUrl,
     };
 
     const authToken: AuthToken = AuthToken.Generate();
@@ -121,7 +152,7 @@ export class UserService {
       timeStamp: authToken.timestamp,
     };
 
-    this.authTokenDao.putAuthToken(authTokenEntity);
+    await this.authTokenDao.putAuthToken(authTokenEntity);
 
     return [userDto, authToken];
   }

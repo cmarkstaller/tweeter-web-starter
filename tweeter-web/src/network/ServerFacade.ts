@@ -221,10 +221,10 @@ export class ServerFacade {
     >(request, "/login/list");
 
     if (response.success) {
-      if (response.user.alias == null) {
-        throw new Error(`Error logging in user`);
-      } else {
+      if (response.user && response.authToken) {
         return [User.fromDto(response.user)!, response.authToken];
+      } else {
+        throw new Error(`Error logging in user`);
       }
     } else {
       console.error(response);
@@ -239,15 +239,10 @@ export class ServerFacade {
     >(request, "/register/list");
 
     if (response.success) {
-      if (
-        response.user.firstName == null ||
-        response.user.lastName == null ||
-        response.user.alias == null ||
-        response.user.imageUrl == null
-      ) {
-        throw new Error(`Error registering user`);
-      } else {
+      if (response.user && response.authToken) {
         return [User.fromDto(response.user)!, response.authToken];
+      } else {
+        throw new Error(`Error registering user`);
       }
     } else {
       console.error(response);

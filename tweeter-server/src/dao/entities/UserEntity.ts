@@ -3,6 +3,4 @@ export type UserEntity = {
   password: string;
   firstName: string;
   lastName: string;
-  userImageBytes: string;
-  imageFileExtension: string;
 };
