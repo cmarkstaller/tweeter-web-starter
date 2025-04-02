@@ -1,4 +1,8 @@
-import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
+import {
+  DynamoDBClient,
+  QueryCommand,
+  ScanCommand,
+} from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
   GetCommand,
@@ -65,24 +69,59 @@ export class AuthTokenDynamoDBDao implements AuthTokenDao {
   public async deleteAuthToken(token: string): Promise<void> {
     const params = {
       TableName: this.tableName,
-      Key: this.generateTokenItem(token),
+      Key: {
+        [this.tokenAttr]: token,
+      },
     };
     await this.client.send(new DeleteCommand(params));
   }
 
   public async checkAuthToken(token: string): Promise<boolean> {
+    await this.deleteExpiredAuthTokens();
+
     const authTokenEntity = await this.getAuthToken(token);
 
     if (!authTokenEntity) {
-      throw new Error("AuthToken Error");
-    }
-    const time = authTokenEntity.timeStamp;
-    if (Date.now() - time > this.TIMEOUT) {
-      await this.deleteAuthToken(token);
       return false;
     } else {
       this.updateAuthToken(token, Date.now());
       return true;
+    }
+
+    // const time = authTokenEntity.timeStamp;
+    // if (Date.now() - time > this.TIMEOUT) {
+    //   await this.deleteAuthToken(token);
+    //   return false;
+    // } else {
+    //   this.updateAuthToken(token, Date.now());
+    //   return true;
+    // }
+  }
+
+  public async getAllAuthTokens(): Promise<AuthTokenEntity[]> {
+    const params = {
+      TableName: this.tableName,
+    };
+    const output = await this.client.send(new ScanCommand(params));
+
+    return (
+      output.Items?.map((item) => ({
+        alias: item[this.aliasAttr]?.S ?? "", // Extract string value
+        token: item[this.tokenAttr]?.S ?? "",
+        timeStamp: item[this.timeStampAttr]?.N
+          ? Number(item[this.timeStampAttr].N)
+          : 0, // Convert to number
+      })) ?? []
+    );
+  }
+
+  private async deleteExpiredAuthTokens(): Promise<void> {
+    const authTokenEntities: AuthTokenEntity[] = await this.getAllAuthTokens();
+    for (const entity of authTokenEntities) {
+      const time = entity.timeStamp;
+      if (Date.now() - time > this.TIMEOUT) {
+        await this.deleteAuthToken(entity.alias);
+      }
     }
   }
 

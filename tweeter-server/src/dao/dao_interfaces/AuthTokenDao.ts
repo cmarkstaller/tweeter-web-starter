@@ -8,4 +8,6 @@ export interface AuthTokenDao {
   updateAuthToken(token: string, timeStamp: number): Promise<void>;
 
   deleteAuthToken(token: string): Promise<void>;
+
+  checkAuthToken(token: string): Promise<boolean>;
 }

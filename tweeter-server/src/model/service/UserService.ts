@@ -158,12 +158,13 @@ export class UserService {
   }
 
   public async logout(token: string): Promise<void> {
-    // Pause so we can see the logging out message. Delete when the call to the server is implemented.
-    const authTokenEntity = this.authTokenDao.getAuthToken(token);
-    if (!authTokenEntity) {
-      throw new Error("User not logged in to log out");
-    }
-    this.authTokenDao.deleteAuthToken(token);
+    // // Pause so we can see the logging out message. Delete when the call to the server is implemented.
+    // // const authTokenEntity = this.authTokenDao.getAuthToken(token);
+    // const validAuth: boolean = await this.authTokenDao.checkAuthToken(token);
+    // if (!validAuth) {
+    //   throw new Error("User not logged in to log out");
+    // }
+    await this.authTokenDao.deleteAuthToken(token);
   }
 
   public async getUser(token: string, alias: string): Promise<UserDto | null> {
