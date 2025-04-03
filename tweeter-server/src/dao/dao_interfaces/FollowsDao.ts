@@ -1,28 +1,28 @@
 import { DataPage } from "../entities/DataPage";
-import { Follower } from "../entities/Follower";
+import { FollowEntity } from "../entities/FollowEntity";
 
 export interface FollowsDao {
-  putFollower(follower: Follower): Promise<void>;
+  putFollower(follower: FollowEntity): Promise<void>;
 
   updateFollower(
-    follower: Follower,
+    follower: FollowEntity,
     follower_name: string,
     followee_name: string
   ): Promise<void>;
 
-  getFollower(follower: Follower): Promise<Follower | undefined>;
+  getFollower(follower: FollowEntity): Promise<FollowEntity | undefined>;
 
-  deleteFollower(follower: Follower): Promise<void>;
+  deleteFollower(follower: FollowEntity): Promise<void>;
 
   getPageOfFollowees(
     followerHandle: string,
     pageSize: number,
     lastFolloweeHandle: string | undefined
-  ): Promise<DataPage<Follower>>;
+  ): Promise<DataPage<FollowEntity>>;
 
   getPageOfFollowers(
     followeeHandle: string,
     pageSize: number,
     lastFollowerHandle: string | undefined
-  ): Promise<DataPage<Follower>>;
+  ): Promise<DataPage<FollowEntity>>;
 }

@@ -1,21 +1,25 @@
 import bcrypt from "bcryptjs";
-import { AuthToken, User, FakeData, UserDto } from "tweeter-shared";
+import { AuthToken, User, FakeData, UserDto, Follow } from "tweeter-shared";
 import { AuthTokenDao } from "../../dao/dao_interfaces/AuthTokenDao";
 import { UserDao } from "../../dao/dao_interfaces/UserDao";
 import { Factory } from "../../factory/Factory";
 import { UserEntity } from "../../dao/entities/UserEntity";
 import { AuthTokenEntity } from "../../dao/entities/AuthTokenEntity";
 import { ImageDao } from "../../dao/dao_interfaces/ImageDao";
+import { FollowsDao } from "../../dao/dao_interfaces/FollowsDao";
+import { FollowEntity } from "../../dao/entities/FollowEntity";
 
 export class UserService {
   private userDao: UserDao;
   private authTokenDao: AuthTokenDao;
   private imageDao: ImageDao;
+  private followsDao: FollowsDao;
 
   public constructor(factory: Factory) {
     this.userDao = factory.getUserDao();
     this.authTokenDao = factory.getAuthTokenDao();
     this.imageDao = factory.getImageDao();
+    this.followsDao = factory.getFollowsDao();
   }
 
   public async getIsFollowerStatus(
@@ -44,6 +48,19 @@ export class UserService {
     await new Promise((f) => setTimeout(f, 2000));
 
     // TODO: Call the server
+    const authToken = await this.authTokenDao.getAuthToken(token);
+    const followerAlias = authToken!.alias;
+
+    const user = await this.userDao.getUser(followerAlias);
+
+    const followEntity: FollowEntity = {
+      followerHandle: user!.alias,
+      followerName: user!.firstName,
+      followeeHandle: userToFollow.alias,
+      followeeName: userToFollow.firstName,
+    };
+
+    this.followsDao.putFollower(followEntity);
 
     const followerCount = await this.getFollowerCount(token, userToFollow);
     const followeeCount = await this.getFolloweeCount(token, userToFollow);

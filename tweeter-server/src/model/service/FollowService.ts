@@ -3,7 +3,7 @@ import { FollowsDao } from "../../dao/dao_interfaces/FollowsDao";
 import { UserDao } from "../../dao/dao_interfaces/UserDao";
 import { Factory } from "../../factory/Factory";
 import { DataPage } from "../../dao/entities/DataPage";
-import { Follower } from "../../dao/entities/Follower";
+import { FollowEntity } from "../../dao/entities/FollowEntity";
 import { UserEntity } from "../../dao/entities/UserEntity";
 import { ImageDao } from "../../dao/dao_interfaces/ImageDao";
 
@@ -25,11 +25,12 @@ export class FollowService {
     lastItem: UserDto | null
   ): Promise<[UserDto[], boolean]> {
     // TODO: Replace with the result of calling server
-    const data: DataPage<Follower> = await this.followsDao.getPageOfFollowers(
-      userAlias,
-      pageSize,
-      lastItem?.alias
-    );
+    const data: DataPage<FollowEntity> =
+      await this.followsDao.getPageOfFollowers(
+        userAlias,
+        pageSize,
+        lastItem?.alias
+      );
     var aliases: string[] = [];
     for (const follower of data.values) {
       aliases.push(follower.followerHandle);
@@ -64,11 +65,12 @@ export class FollowService {
     lastItem: UserDto | null
   ): Promise<[UserDto[], boolean]> {
     // TODO: Replace with the result of calling server
-    const data: DataPage<Follower> = await this.followsDao.getPageOfFollowees(
-      userAlias,
-      pageSize,
-      lastItem?.alias
-    );
+    const data: DataPage<FollowEntity> =
+      await this.followsDao.getPageOfFollowees(
+        userAlias,
+        pageSize,
+        lastItem?.alias
+      );
     var aliases: string[] = [];
     for (const follower of data.values) {
       aliases.push(follower.followeeHandle);
