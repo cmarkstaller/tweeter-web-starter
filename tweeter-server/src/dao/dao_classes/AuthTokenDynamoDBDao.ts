@@ -1,3 +1,4 @@
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 import {
   DynamoDBClient,
   QueryCommand,
@@ -98,29 +99,48 @@ export class AuthTokenDynamoDBDao implements AuthTokenDao {
     // }
   }
 
+  // public async getAllAuthTokens(): Promise<AuthTokenEntity[]> {
+  //   const params = {
+  //     TableName: this.tableName,
+  //   };
+  //   const output = await this.client.send(new ScanCommand(params));
+
+  //   return (
+  //     output.Items?.map((item) => ({
+  //       alias: item[this.aliasAttr]?.S ?? "", // Extract string value
+  //       token: item[this.tokenAttr]?.S ?? "",
+  //       timeStamp: Number(item[this.timeStampAttr]?.S)
+  //         ? Number(item[this.timeStampAttr].N)
+  //         : 0, // Convert to number
+  //     })) ?? []
+  //   );
+  // }
+
   public async getAllAuthTokens(): Promise<AuthTokenEntity[]> {
     const params = {
       TableName: this.tableName,
     };
+
     const output = await this.client.send(new ScanCommand(params));
 
     return (
-      output.Items?.map((item) => ({
-        alias: item[this.aliasAttr]?.S ?? "", // Extract string value
-        token: item[this.tokenAttr]?.S ?? "",
-        timeStamp: item[this.timeStampAttr]?.N
-          ? Number(item[this.timeStampAttr].N)
-          : 0, // Convert to number
-      })) ?? []
+      output.Items?.map((item) => {
+        const unmarshalled = unmarshall(item);
+        return {
+          alias: unmarshalled[this.aliasAttr],
+          token: unmarshalled[this.tokenAttr],
+          timeStamp: Number(unmarshalled[this.timeStampAttr]),
+        };
+      }) ?? []
     );
   }
 
-  private async deleteExpiredAuthTokens(): Promise<void> {
+  public async deleteExpiredAuthTokens(): Promise<void> {
     const authTokenEntities: AuthTokenEntity[] = await this.getAllAuthTokens();
     for (const entity of authTokenEntities) {
       const time = entity.timeStamp;
       if (Date.now() - time > this.TIMEOUT) {
-        await this.deleteAuthToken(entity.alias);
+        await this.deleteAuthToken(entity.token);
       }
     }
   }

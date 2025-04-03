@@ -35,8 +35,8 @@ export class StoryDynamoDBDao implements StoryDao {
     data.Items?.forEach((item) =>
       items.push({
         alias: item[this.aliasAttr]?.S || "",
-        time_stamp: item[this.timeStampAttr]?.N
-          ? Number(item[this.timeStampAttr].N)
+        time_stamp: item[this.timeStampAttr]?.S
+          ? Number(item[this.timeStampAttr].S) // Convert string to number
           : 0,
         post: item[this.postAttr]?.S || "",
       })

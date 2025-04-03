@@ -44,10 +44,6 @@ export class UserService {
     token: string,
     userToFollow: UserDto
   ): Promise<[followerCount: number, followeeCount: number]> {
-    // Pause so we can see the follow message. Remove when connected to the server
-    await new Promise((f) => setTimeout(f, 2000));
-
-    // TODO: Call the server
     const authToken = await this.authTokenDao.getAuthToken(token);
     const followerAlias = authToken!.alias;
 
@@ -72,10 +68,18 @@ export class UserService {
     token: string,
     userToUnfollow: UserDto
   ): Promise<[followerCount: number, followeeCount: number]> {
-    // Pause so we can see the unfollow message. Remove when connected to the server
-    await new Promise((f) => setTimeout(f, 2000));
+    const authToken = await this.authTokenDao.getAuthToken(token);
+    const followerAlias = authToken!.alias;
 
-    // TODO: Call the server
+    const user = await this.userDao.getUser(followerAlias);
+
+    const followEntity: FollowEntity = {
+      followerHandle: user!.alias,
+      followerName: user!.firstName,
+      followeeHandle: userToUnfollow.alias,
+      followeeName: userToUnfollow.firstName,
+    };
+    await this.followsDao.deleteFollowee(followEntity);
 
     const followerCount = await this.getFollowerCount(token, userToUnfollow);
     const followeeCount = await this.getFolloweeCount(token, userToUnfollow);
@@ -177,15 +181,33 @@ export class UserService {
   public async logout(token: string): Promise<void> {
     // // Pause so we can see the logging out message. Delete when the call to the server is implemented.
     // // const authTokenEntity = this.authTokenDao.getAuthToken(token);
-    // const validAuth: boolean = await this.authTokenDao.checkAuthToken(token);
-    // if (!validAuth) {
-    //   throw new Error("User not logged in to log out");
-    // }
+    const validAuth: boolean = await this.authTokenDao.checkAuthToken(token);
+    if (!validAuth) {
+      throw new Error("User not logged in to log out");
+    }
     await this.authTokenDao.deleteAuthToken(token);
   }
 
   public async getUser(token: string, alias: string): Promise<UserDto | null> {
     // TODO: Replace with the result of calling server
-    return FakeData.instance.findUserByAlias(alias)?.dto || null;
+    // return FakeData.instance.findUserByAlias(alias)?.dto || null;
+    const userEntity: UserEntity | undefined = await this.userDao.getUser(
+      alias
+    );
+
+    if (!userEntity) {
+      throw new Error("getUser, not userEntity error");
+    }
+
+    const fileName: string = `${alias}_Image`;
+    const imageUrl = await this.imageDao.getImage(fileName);
+
+    const userDto: UserDto = {
+      firstName: userEntity.firstName,
+      lastName: userEntity.lastName,
+      alias: userEntity.alias,
+      imageUrl: imageUrl,
+    };
+    return userDto;
   }
 }

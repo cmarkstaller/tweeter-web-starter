@@ -19,6 +19,8 @@ export class LogoutPresenter extends Presenter<LogoutView> {
   }
 
   public async logOut(authToken: AuthToken) {
+    console.log("Here is my authToken: ");
+    console.log(authToken);
     this._view.displayInfoMessage("Logging Out...", 0);
 
     this.doFailureReportingOperation(async () => {

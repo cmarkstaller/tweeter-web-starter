@@ -201,6 +201,7 @@ export class ServerFacade {
   }
 
   public async unfollow(request: UserRequest): Promise<[number, number]> {
+    console.log("At least I made it here");
     const response = await this.clientCommunicator.doPost<
       UserRequest,
       FollowResponse
@@ -210,6 +211,7 @@ export class ServerFacade {
       console.error(response);
       throw new Error(response.message ?? "Unknown error");
     } else {
+      console.log("made it into unfollow success");
       return [response.numFollower, response.numFollowee];
     }
   }
@@ -221,8 +223,11 @@ export class ServerFacade {
     >(request, "/login/list");
 
     if (response.success) {
-      if (response.user && response.authToken) {
-        return [User.fromDto(response.user)!, response.authToken];
+      if (response.user && response.token) {
+        return [
+          User.fromDto(response.user)!,
+          new AuthToken(response.token, Date.now()),
+        ];
       } else {
         throw new Error(`Error logging in user`);
       }
@@ -239,8 +244,11 @@ export class ServerFacade {
     >(request, "/register/list");
 
     if (response.success) {
-      if (response.user && response.authToken) {
-        return [User.fromDto(response.user)!, response.authToken];
+      if (response.user && response.token) {
+        return [
+          User.fromDto(response.user)!,
+          new AuthToken(response.token, Date.now()),
+        ];
       } else {
         throw new Error(`Error registering user`);
       }

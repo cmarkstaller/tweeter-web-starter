@@ -12,7 +12,7 @@ export interface FollowsDao {
 
   getFollower(follower: FollowEntity): Promise<FollowEntity | undefined>;
 
-  deleteFollower(follower: FollowEntity): Promise<void>;
+  deleteFollowee(follower: FollowEntity): Promise<void>;
 
   getPageOfFollowees(
     followerHandle: string,

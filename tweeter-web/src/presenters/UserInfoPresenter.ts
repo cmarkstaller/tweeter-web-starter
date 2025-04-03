@@ -64,14 +64,23 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
       this._view.setIsLoading(true);
       this._view.displayInfoMessage(`${action} ${displayedUser!.name}...`, 0);
 
-      const [followerCount, followeeCount] = await this._userService.follow(
-        authToken!,
-        displayedUser!
-      );
-
-      this._view.setIsFollower(isFollower);
-      this._view.setFollowerCount(followerCount);
-      this._view.setFolloweeCount(followeeCount);
+      if (isFollower) {
+        const [followerCount, followeeCount] = await this._userService.follow(
+          authToken!,
+          displayedUser!
+        );
+        this._view.setIsFollower(isFollower);
+        this._view.setFollowerCount(followerCount);
+        this._view.setFolloweeCount(followeeCount);
+      } else {
+        const [followerCount, followeeCount] = await this._userService.unfollow(
+          authToken!,
+          displayedUser!
+        );
+        this._view.setIsFollower(isFollower);
+        this._view.setFollowerCount(followerCount);
+        this._view.setFolloweeCount(followeeCount);
+      }
     } catch (error) {
       this._view.displayErrorMessage(
         `Failed to ${operationDescription} because of exception: ${error}`

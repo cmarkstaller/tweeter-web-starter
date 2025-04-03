@@ -74,10 +74,10 @@ export class FollowsDynamoDBDao implements FollowsDao {
         };
   }
 
-  public async deleteFollower(follower: FollowEntity): Promise<void> {
+  public async deleteFollowee(followee: FollowEntity): Promise<void> {
     const params = {
       TableName: this.tableName,
-      Key: this.generateFollowerItem(follower),
+      Key: this.generateFollowerItem(followee),
     };
     await this.client.send(new DeleteCommand(params));
   }
