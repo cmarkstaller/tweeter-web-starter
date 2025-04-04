@@ -6,16 +6,19 @@ import { DataPage } from "../../dao/entities/DataPage";
 import { FollowEntity } from "../../dao/entities/FollowEntity";
 import { UserEntity } from "../../dao/entities/UserEntity";
 import { ImageDao } from "../../dao/dao_interfaces/ImageDao";
+import { AuthTokenDao } from "../../dao/dao_interfaces/AuthTokenDao";
 
 export class FollowService {
   private followsDao: FollowsDao;
   private userDao: UserDao;
   private imageDao: ImageDao;
+  private authTokenDao: AuthTokenDao;
 
   constructor(factory: Factory) {
     this.followsDao = factory.getFollowsDao();
     this.userDao = factory.getUserDao();
     this.imageDao = factory.getImageDao();
+    this.authTokenDao = factory.getAuthTokenDao();
   }
 
   public async loadMoreFollowers(
@@ -24,7 +27,10 @@ export class FollowService {
     pageSize: number,
     lastItem: UserDto | null
   ): Promise<[UserDto[], boolean]> {
-    // TODO: Replace with the result of calling server
+    if (!(await this.authTokenDao.checkAuthToken(token))) {
+      throw new Error("Error Authenticating. Login again");
+    }
+
     const data: DataPage<FollowEntity> =
       await this.followsDao.getPageOfFollowers(
         userAlias,
@@ -64,7 +70,9 @@ export class FollowService {
     pageSize: number,
     lastItem: UserDto | null
   ): Promise<[UserDto[], boolean]> {
-    // TODO: Replace with the result of calling server
+    if (!(await this.authTokenDao.checkAuthToken(token))) {
+      throw new Error("Error Authenticating. Login again");
+    }
     const data: DataPage<FollowEntity> =
       await this.followsDao.getPageOfFollowees(
         userAlias,
@@ -98,17 +106,17 @@ export class FollowService {
     return [dtos, data.hasMorePages];
   }
 
-  private async getFakeData(
-    lastItem: UserDto | null,
-    pageSize: number,
-    userAlias: string
-  ): Promise<[UserDto[], boolean]> {
-    const [items, hasMore] = FakeData.instance.getPageOfUsers(
-      User.fromDto(lastItem),
-      pageSize,
-      userAlias
-    );
-    const dtos = items.map((user) => user.dto);
-    return [dtos, hasMore];
-  }
+  // private async getFakeData(
+  //   lastItem: UserDto | null,
+  //   pageSize: number,
+  //   userAlias: string
+  // ): Promise<[UserDto[], boolean]> {
+  //   const [items, hasMore] = FakeData.instance.getPageOfUsers(
+  //     User.fromDto(lastItem),
+  //     pageSize,
+  //     userAlias
+  //   );
+  //   const dtos = items.map((user) => user.dto);
+  //   return [dtos, hasMore];
+  // }
 }

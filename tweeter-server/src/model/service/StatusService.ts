@@ -13,16 +13,25 @@ import { Factory } from "../../factory/Factory";
 import { StoryDao } from "../../dao/dao_interfaces/StoryDao";
 import { StatusEntity } from "../../dao/entities/StoryEntity";
 import { DataPage } from "../../dao/entities/DataPage";
+import { FeedDao } from "../../dao/dao_interfaces/FeedDao";
+import { FollowEntity } from "../../dao/entities/FollowEntity";
+import { AuthTokenDao } from "../../dao/dao_interfaces/AuthTokenDao";
 
 export class StatusService {
   private userDao: UserDao;
   private imageDao: ImageDao;
   private storyDao: StoryDao;
+  private feedDao: FeedDao;
+  private followsDao: FollowsDao;
+  private authTokenDao: AuthTokenDao;
 
   constructor(factory: Factory) {
     this.userDao = factory.getUserDao();
     this.imageDao = factory.getImageDao();
     this.storyDao = factory.getStoryDao();
+    this.feedDao = factory.getFeedDao();
+    this.followsDao = factory.getFollowsDao();
+    this.authTokenDao = factory.getAuthTokenDao();
   }
 
   public async loadMoreStoryItems(
@@ -31,7 +40,9 @@ export class StatusService {
     pageSize: number,
     lastItem: StatusDto | null
   ): Promise<[StatusDto[], boolean]> {
-    // TODO: Replace with the result of calling server
+    if (!(await this.authTokenDao.checkAuthToken(token))) {
+      throw new Error("Error Authenticating. Login again");
+    }
     const data: DataPage<StatusEntity> = await this.storyDao.getPageOfStories(
       userAlias,
       pageSize,
@@ -60,7 +71,6 @@ export class StatusService {
     }
 
     return [dtos, data.hasMorePages];
-    // return this.getFakeData(lastItem, pageSize);
   }
 
   public async loadMoreFeedItems(
@@ -69,14 +79,25 @@ export class StatusService {
     pageSize: number,
     lastItem: StatusDto | null
   ): Promise<[StatusDto[], boolean]> {
-    // TODO: Replace with the result of calling server
-    return this.getFakeData(lastItem, pageSize);
+    if (!(await this.authTokenDao.checkAuthToken(token))) {
+      throw new Error("Error Authenticating. Login again");
+    }
+    const data: DataPage<StatusDto> = await this.feedDao.getPageOfFeed(
+      userAlias,
+      pageSize,
+      lastItem?.timestamp
+    );
+
+    return [data.values, data.hasMorePages];
   }
 
   public async postStatus(
     token: string,
     newStatus: StatusDto
   ): Promise<boolean> {
+    if (!(await this.authTokenDao.checkAuthToken(token))) {
+      throw new Error("Error Authenticating. Login again");
+    }
     const statusEntity: StatusEntity = {
       alias: newStatus.user.alias,
       time_stamp: newStatus.timestamp,
@@ -84,6 +105,14 @@ export class StatusService {
     };
 
     await this.storyDao.putStory(statusEntity);
+
+    const dataPage = await this.followsDao.getAllFollowers(statusEntity.alias);
+    const followers: FollowEntity[] = dataPage.values;
+    for (const entity of followers) {
+      const followerAlias: string = entity.followerHandle;
+
+      await this.feedDao.putFeed(followerAlias, newStatus);
+    }
     return true;
   }
 

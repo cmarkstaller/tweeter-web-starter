@@ -1,3 +1,4 @@
+import { StatusDto, UserDto } from "tweeter-shared";
 import { AuthTokenDynamoDBDao } from "../dao/dao_classes/AuthTokenDynamoDBDao";
 import { FollowsDynamoDBDao } from "../dao/dao_classes/FollowsDynamoDBDao";
 import { FollowEntity } from "../dao/entities/FollowEntity";
@@ -7,23 +8,32 @@ import { UserService } from "../model/service/UserService";
 
 // Command to run -> npx ts-node src/myTesting/test.ts
 
-// (async () => {
-//   try {
-//     const userService: UserService = new UserService(
-//       new DynamoDBFactory()
-//     );
-//     userDto: UserDto
-//     const res = await userService.follow(
-//       "token",
-//       "chris",
-//       10,
-//       null
-//     );
-//     console.log(res);
-//   } catch (error) {
-//     console.error("Error:", error);
-//   }
-// })();
+(async () => {
+  try {
+    const statusService: StatusService = new StatusService(
+      new DynamoDBFactory()
+    );
+    const userDto: UserDto = {
+      alias: "@audrey",
+      firstName: "audrey",
+      lastName: "moe",
+      imageUrl: "yeet",
+    };
+    const statusDto: StatusDto = {
+      post: "here i my test post",
+      user: userDto,
+      timestamp: 333,
+    };
+
+    const res = await statusService.postStatus(
+      "2fa12476-5ce8-4fcf-b978-fd6f0ca77016",
+      statusDto
+    );
+    console.log(res);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+})();
 
 // const AuthTokenDao = new AuthTokenDynamoDBDao();
 

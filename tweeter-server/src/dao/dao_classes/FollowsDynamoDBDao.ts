@@ -126,17 +126,6 @@ export class FollowsDynamoDBDao implements FollowsDao {
               [this.followeeHandleAttr]: lastFolloweeHandle,
             },
     };
-    // const items: Follower[] = [];
-    // const data = await this.client.send(new QueryCommand(params));
-    // const hasMorePages = data.LastEvaluatedKey !== undefined;
-    // data.Items?.forEach((item) =>
-    //   items.push({
-    //     followerName: item[this.followerNameAttr],
-    //     followerHandle: item[this.followerHandleAttr],
-    //     followeeName: item[this.followeeNameAttr],
-    //     followeeHandle: item[this.followeeHandleAttr],
-    //   })
-    // );
     const data = await this.executeFollowQuery(params);
     return data;
   }
@@ -162,18 +151,36 @@ export class FollowsDynamoDBDao implements FollowsDao {
               [this.followeeHandleAttr]: followeeHandle,
             },
     };
-    // const items: Follower[] = [];
-    // const data = await this.client.send(new QueryCommand(params));
-    // const hasMorePages = data.LastEvaluatedKey !== undefined;
-    // data.Items?.forEach((item) =>
-    //   items.push({
-    //     followerName: item[this.followerNameAttr],
-    //     followerHandle: item[this.followerHandleAttr],
-    //     followeeName: item[this.followeeNameAttr],
-    //     followeeHandle: item[this.followeeHandleAttr],
-    //   })
-    // );
-    // return new DataPage<Follower>(items, hasMorePages);
+
+    const data = await this.executeFollowQuery(params);
+    return data;
+  }
+
+  public async getAllFollowees(
+    followerHandle: string
+  ): Promise<DataPage<FollowEntity>> {
+    const params = {
+      KeyConditionExpression: this.followerHandleAttr + " = :f",
+      ExpressionAttributeValues: {
+        ":f": followerHandle,
+      },
+      TableName: this.tableName,
+    };
+    const data = await this.executeFollowQuery(params);
+    return data;
+  }
+
+  public async getAllFollowers(
+    followeeHandle: string
+  ): Promise<DataPage<FollowEntity>> {
+    const params = {
+      KeyConditionExpression: this.followeeHandleAttr + " = :fol",
+      ExpressionAttributeValues: {
+        ":fol": followeeHandle,
+      },
+      TableName: this.tableName,
+      IndexName: this.indexName,
+    };
 
     const data = await this.executeFollowQuery(params);
     return data;

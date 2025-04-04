@@ -27,23 +27,47 @@ export class UserService {
     user: UserDto,
     selectedUser: UserDto
   ): Promise<boolean> {
-    return FakeData.instance.isFollower();
+    if (!(await this.authTokenDao.checkAuthToken(token))) {
+      throw new Error("Error Authenticating. Login again");
+    }
+    const followEntity: FollowEntity = {
+      followerHandle: user.alias,
+      followerName: user.firstName,
+      followeeHandle: selectedUser.alias,
+      followeeName: selectedUser.firstName,
+    };
+    const follower: FollowEntity | undefined =
+      await this.followsDao.getFollower(followEntity);
+    if (!follower) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   public async getFolloweeCount(token: string, user: UserDto): Promise<number> {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.getFolloweeCount(User.fromDto(user)!.alias);
+    if (!(await this.authTokenDao.checkAuthToken(token))) {
+      throw new Error("Error Authenticating. Login again");
+    }
+    const dataPage = await this.followsDao.getAllFollowees(user.alias);
+    return dataPage.values.length;
   }
 
   public async getFollowerCount(token: string, user: UserDto): Promise<number> {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.getFollowerCount(User.fromDto(user)!.alias);
+    if (!(await this.authTokenDao.checkAuthToken(token))) {
+      throw new Error("Error Authenticating. Login again");
+    }
+    const dataPage = await this.followsDao.getAllFollowers(user.alias);
+    return dataPage.values.length;
   }
 
   public async follow(
     token: string,
     userToFollow: UserDto
   ): Promise<[followerCount: number, followeeCount: number]> {
+    if (!(await this.authTokenDao.checkAuthToken(token))) {
+      throw new Error("Error Authenticating. Login again");
+    }
     const authToken = await this.authTokenDao.getAuthToken(token);
     const followerAlias = authToken!.alias;
 
@@ -68,6 +92,9 @@ export class UserService {
     token: string,
     userToUnfollow: UserDto
   ): Promise<[followerCount: number, followeeCount: number]> {
+    if (!(await this.authTokenDao.checkAuthToken(token))) {
+      throw new Error("Error Authenticating. Login again");
+    }
     const authToken = await this.authTokenDao.getAuthToken(token);
     const followerAlias = authToken!.alias;
 
@@ -189,8 +216,9 @@ export class UserService {
   }
 
   public async getUser(token: string, alias: string): Promise<UserDto | null> {
-    // TODO: Replace with the result of calling server
-    // return FakeData.instance.findUserByAlias(alias)?.dto || null;
+    if (!(await this.authTokenDao.checkAuthToken(token))) {
+      throw new Error("Error Authenticating. Login again");
+    }
     const userEntity: UserEntity | undefined = await this.userDao.getUser(
       alias
     );
