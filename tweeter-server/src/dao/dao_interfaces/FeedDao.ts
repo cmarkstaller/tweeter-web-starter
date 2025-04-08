@@ -9,4 +9,5 @@ export interface FeedDao {
     pageSize: number,
     timestamp: number | undefined
   ): Promise<DataPage<StatusDto>>;
+  putFeedBatch(followerList: string[], status: StatusDto): Promise<void>;
 }

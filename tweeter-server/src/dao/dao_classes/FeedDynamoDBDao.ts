@@ -1,5 +1,9 @@
 import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  BatchWriteCommand,
+  DynamoDBDocumentClient,
+  PutCommand,
+} from "@aws-sdk/lib-dynamodb";
 import { StatusEntity } from "../entities/StoryEntity";
 import { DataPage } from "../entities/DataPage";
 import { FeedDao } from "../dao_interfaces/FeedDao";
@@ -33,6 +37,42 @@ export class FeedDynamoDBDao implements FeedDao {
       console.log("Put item successfully!");
     } catch (error) {
       console.error("Error putting item:", error);
+    }
+  }
+
+  public async putFeedBatch(
+    followerAliases: string[],
+    status: StatusDto
+  ): Promise<void> {
+    const BATCH_SIZE = 25;
+
+    // Split into chunks of 25
+    for (let i = 0; i < followerAliases.length; i += BATCH_SIZE) {
+      const chunk = followerAliases.slice(i, i + BATCH_SIZE);
+
+      const writeRequests = chunk.map((alias) => ({
+        PutRequest: {
+          Item: {
+            [this.aliasAttr]: alias,
+            [this.timeStampAttr]: status.timestamp.toString(),
+            [this.statusAttr]: JSON.stringify(status),
+          },
+        },
+      }));
+
+      const params = {
+        RequestItems: {
+          [this.tableName]: writeRequests,
+        },
+      };
+
+      try {
+        await this.client.send(new BatchWriteCommand(params));
+        console.log(`Successfully wrote batch ${i / BATCH_SIZE + 1}`);
+      } catch (error) {
+        console.error("Batch write failed:", error);
+        // Optional: retry logic for UnprocessedItems if needed
+      }
     }
   }
 

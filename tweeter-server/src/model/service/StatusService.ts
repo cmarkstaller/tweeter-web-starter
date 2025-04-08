@@ -116,7 +116,9 @@ export class StatusService {
     return true;
   }
 
-  public async postFeed(followerList: string[], statusDto: StatusDto) {}
+  public async updateFeed(followerList: string[], statusDto: StatusDto) {
+    await this.feedDao.putFeedBatch(followerList, statusDto);
+  }
 
   private async getFakeData(
     lastItem: StatusDto | null,

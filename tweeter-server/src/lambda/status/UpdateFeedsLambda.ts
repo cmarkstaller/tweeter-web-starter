@@ -13,7 +13,7 @@ export const handler = async function (event: any) {
     const followerList = bodyObject.followerList;
     const statusDto = bodyObject.statusDto;
 
-    await statusService.postFeed(followerList, statusDto);
+    await statusService.updateFeed(followerList, statusDto);
   }
   return null;
 };
