@@ -106,13 +106,13 @@ export class StatusService {
 
     await this.storyDao.putStory(statusEntity);
 
-    const dataPage = await this.followsDao.getAllFollowers(statusEntity.alias);
-    const followers: FollowEntity[] = dataPage.values;
-    for (const entity of followers) {
-      const followerAlias: string = entity.followerHandle;
+    // const dataPage = await this.followsDao.getAllFollowers(statusEntity.alias);
+    // const followers: FollowEntity[] = dataPage.values;
+    // for (const entity of followers) {
+    //   const followerAlias: string = entity.followerHandle;
 
-      await this.feedDao.putFeed(followerAlias, newStatus);
-    }
+    //   await this.feedDao.putFeed(followerAlias, newStatus);
+    // }
     return true;
   }
 
