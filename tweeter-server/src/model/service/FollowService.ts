@@ -106,6 +106,38 @@ export class FollowService {
     return [dtos, data.hasMorePages];
   }
 
+  public async getBatch(
+    alias: string,
+    lastItem: string | undefined,
+    size: number
+  ): Promise<[string[], boolean]> {
+    const dataPage = await this.followsDao.getPageOfFollowers(
+      alias,
+      size,
+      lastItem
+    );
+
+    let followerList: string[] = [];
+    for (const follow of dataPage.values)
+      followerList.push(follow.followerHandle);
+    return [followerList, dataPage.hasMorePages];
+  }
+
+  // public async getBatch(
+  //   userAlias: string,
+  //   size: number,
+  //   lastAlias: string | undefined
+  // ): Promise<string[]> {
+  //   const dataPage: DataPage<FollowEntity> =
+  //     await this.followsDao.getPageOfFollowers(userAlias, size, lastAlias);
+  //   const aliases: string[] = [];
+  //   for (const follower of dataPage.values) {
+  //     aliases.push(follower.followerHandle);
+  //   }
+
+  //   return aliases;
+  // }
+
   // private async getFakeData(
   //   lastItem: UserDto | null,
   //   pageSize: number,

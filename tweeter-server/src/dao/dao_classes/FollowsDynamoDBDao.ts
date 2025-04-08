@@ -186,6 +186,38 @@ export class FollowsDynamoDBDao implements FollowsDao {
     return data;
   }
 
+  // public async getAllFollowers(
+  //   followeeHandle: string
+  // ): Promise<DataPage<FollowEntity>> {
+  //   const results: FollowEntity[] = [];
+  //   let lastKey: any = undefined;
+
+  //   // Loop through pages until there's no more data to fetch
+  //   do {
+  //     const params = {
+  //       KeyConditionExpression: this.followeeHandleAttr + " = :fol",
+  //       ExpressionAttributeValues: {
+  //         ":fol": followeeHandle,
+  //       },
+  //       TableName: this.tableName,
+  //       IndexName: this.indexName,
+  //       ExclusiveStartKey: lastKey, // For pagination
+  //       Limit: 25, // Fetch 25 followers at a time
+  //     };
+
+  //     // Get the next batch of results
+  //     const data = await this.executeFollowQuery(params);
+  //     results.push(...data.values);
+
+  //     // Update last evaluated key for the next iteration
+  //     lastKey = data.hasMorePages ? data.LastEvaluatedKey : undefined;
+
+  //   } while (lastKey); // Continue fetching until there are no more pages
+
+  //   // Return the results as a DataPage
+  //   return new DataPage<FollowEntity>(results, false); // No more pages left to fetch
+  // }
+
   // async getFollowees(
   //   visitor: string,
   //   lastLocation: string | undefined = undefined,

@@ -30,7 +30,8 @@ export const handler = async (
   const statusService = new StatusService(new DynamoDBFactory());
   const success = await statusService.postStatus(request.token, request.status);
 
-  const jsonStatus: string = JSON.stringify(request.status);
-  await sendMessage(jsonStatus);
+  const json: string = JSON.stringify(request.status);
+
+  await sendMessage(json);
   return { success: success, message: "Attempted to post status" };
 };

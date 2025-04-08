@@ -6,6 +6,8 @@ tweeterGetFollowers | lambda/follow/GetFollowersLambda.handler
 tweeterLoadMoreFeedItems | lambda/status/GetFeedItemsLambda.handler
 tweeterLoadMoreStoryItems | lambda/status/GetStoryItemsLambda.handler
 tweeterPostStatus | lambda/status/PostStatusLambda.handler
+tweeterPostUpdateFeedMessages | lambda/status/PostUpdateFeedMessagesLambda.handler
+tweeterUpdateFeedsLambda | lambda/status/UpdateFeedsLambda.handler
 tweeterGetIsFollowerStatus | lambda/user/GetIsFollowerStatusLambda.handler
 tweeterGetFollowerCount | lambda/user/GetFollowerCountLambda.handler
 tweeterGetFolloweeCount | lambda/user/GetFolloweeCountLambda.handler

@@ -116,6 +116,8 @@ export class StatusService {
     return true;
   }
 
+  public async postFeed(followerList: string[], statusDto: StatusDto) {}
+
   private async getFakeData(
     lastItem: StatusDto | null,
     pageSize: number
